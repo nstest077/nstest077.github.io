@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grid Gallery</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      background-color: #cdcdcd;
+      font-family: "ABC Favorit", "Helvetica", sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+    }
+
+    section {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .slider-wrapper {
+      height: calc(32vw + 40px);
+      /* border: 1px solid blue; */
+      overflow: hidden;
+    }
+
+    #slider {
+      position: relative;
+      scroll-snap-type: x mandatory;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      display: flex;
+      padding: 20px 0 37px 0;
+      height: 32vw;
+    }
+
+    #arrowLeft,
+    #arrowRight {
+      width: 20vw;
+      height: 40vh;
+      position: fixed;
+      cursor: pointer;
+    }
+
+    #arrowLeft {
+      left: 0;
+      top: 30vh;
+    }
+
+    #arrowRight {
+      right: 0;
+      top: 30vh;
+    }
+
+    #slider .insight {
+      margin: 0 2vw;
+    }
+
+    #slider .insight .image {
+      width: 48vw;
+      height: 100%;
+      border-radius: 24px;
+      scroll-snap-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background-color: #FFF;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+      /* transform: scale(0.75);
+      -webkit-transform: translate3D(0, 0, 0);
+      -webkit-backface-visibility: hidden;
+      -webkit-transform: scale(0.75); */
+
+      opacity: 0.4;
+      transition: opacity 0.25s ease-in-out;
+      /* transition: transform 0.4s ease-in-out 0.2s; */
+    }
+
+    #slider .insight.active .image {
+      /* transform: scale(1); */
+      /* -webkit-transform: scale(1); */
+      opacity: 1;
+    }
+
+    #slider .insight.hovered .image {
+      opacity: 1;
+    }
+
+    h2 {
+      font-size: 2.5em;
+      line-height: 1em;
+      font-weight: 400;
+      text-align: center;
+      margin: 0;
+    }
+
+    .hiddenslide {
+      margin: 0;
+    }
+
+    .hiddenslide .image {
+      width: 22vw;
+      height: 32vw;
+    }
+
+    .hiddenslide .image:first-child {
+      scroll-snap-align: start;
+    }
+
+    .hiddenslide .image:last-child {
+      scroll-snap-align: end;
+    }
+  </style>
+
+
+  
+
+
+</head>
+
+<body>
+
+
+  <section id="scrollArea">
+    <div class="slider-wrapper">
+      <div id="slider">
+        <div class="hiddenslide">
+          <div class="image"></div>
+        </div>
+        <article id="insight1" class="insight">
+          <div class="image">
+            <h2>Headline 1</h2>
+          </div>
+        </article>
+        <article id="insight2" class="insight">
+          <div class="image">
+            <h2>Headline 2</h2>
+          </div>
+        </article>
+        <article id="insight3" class="insight">
+          <div class="image">
+            <h2>Headline 3</h2>
+          </div>
+        </article>
+        <article id="insight4" class="insight">
+          <div class="image">
+            <h2>Headline 4</h2>
+          </div>
+        </article>
+       
+        <div class="hiddenslide">
+          <div class="image"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="arrowLeft">
+    </div>
+    <div id="arrowRight">
+    </div>
+  </section>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+  <script>
+    $(window).on('load', function () {
+      // IntersectionObserver
+      const insights = [...document.querySelectorAll("article")];
+
+      let options = {
+        rootMargin: "0px",
+        threshold: 1.0
+      };
+
+      const callback = (entries, observer) => {
+        entries.forEach((entry) => {
+          const { target } = entry;
+
+          if (entry.intersectionRatio >= 1.0) {
+            target.classList.add("active");
+          } else {
+            target.classList.remove("active");
+          }
+        });
+      };
+
+      const observer = new IntersectionObserver(callback, options);
+
+      insights.forEach((section, index) => {
+        observer.observe(section);
+      });
+
+      function moveToSlide(target) {
+        target.get(0).scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "center"
+        });
+      }
+
+      // Buttons for slider
+      $("#arrowRight").click(function () {
+        var slide = $(".insight.active").next();
+        moveToSlide(slide);
+        // this fixes issues with the hovers staying active...
+        slide.removeClass("hovered");
+        slide.next().addClass("hovered");
+      });
+
+      $("#arrowLeft").click(function () {
+        var slide = $(".insight.active").prev();
+        moveToSlide(slide);
+        // this fixes issues with the hovers staying active...
+        slide.removeClass("hovered");
+        slide.prev().addClass("hovered");
+      });
+
+      // Hovers for button 
+      $("#arrowRight").mouseover(
+        function () {
+          let $next = $(".insight.active").next();
+          $next.addClass("hovered");
+        })
+        .mouseout(
+          function () {
+            let $next = $(".insight.active").next();
+            $next.removeClass("hovered");
+          });
+
+      $("#arrowLeft").mouseover(
+        function () {
+          let $next = $(".insight.active").prev();
+          $next.addClass("hovered");
+        })
+        .mouseout(
+          function () {
+            let $next = $(".insight.active").prev();
+            $next.removeClass("hovered");
+          });
+    });
+  </script>
+
+
+
+</body>
+
+</html>
